@@ -32,9 +32,9 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://www.akeventsandfireworks.online',
-  'https://akeventsandfireworks.online',
-  'https://frontwork-drab.vercel.app', // Add your frontend domain
+  'https://www.dsquarevents.com/',
+  'https://dsquarevents.com/',
+  'https://dsquare-frontend.vercel.app/', // Add your frontend domain
   '*' // Allow all for Vercel compatibility
 ];
 
