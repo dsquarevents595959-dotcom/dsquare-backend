@@ -109,6 +109,25 @@ try {
   console.error("Error loading routes:", error);
 }
 
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.status(200).json({ 
+    success: true, 
+    message: "Dsquare Events Backend API is running", 
+    version: "1.0.0",
+    timestamp: new Date().toISOString()
+  });
+});
+
+// API health check
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ 
+    success: true, 
+    message: "API is healthy",
+    uptime: process.uptime()
+  });
+});
+
 // 404 handler - before error handler
 app.use((req, res) => {
   console.warn(`404: ${req.method} ${req.path}`);
