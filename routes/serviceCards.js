@@ -4,9 +4,26 @@ const ServiceCard = require('../models/ServiceCard');
 const { upload, cloudinary } = require('../middleware/cloudinary');
 const router = express.Router();
 
+// Logging middleware for debugging
+router.use((req, res, next) => {
+  console.log(`[ServiceCards] ${req.method} ${req.path}`);
+  next();
+});
+
+// Test endpoint to verify route is working
+router.get('/test', (req, res) => {
+  console.log("[ServiceCards] Test endpoint hit!");
+  res.json({ 
+    success: true, 
+    message: "Service Cards route is working",
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Get all categories with card counts - MUST be before /:category route
 router.get('/categories/overview', async (req, res) => {
   try {
+    console.log("[ServiceCards] Fetching categories overview");
     const categories = await ServiceCard.aggregate([
       {
         $match: { isSubCard: false }
@@ -22,6 +39,7 @@ router.get('/categories/overview', async (req, res) => {
       }
     ]);
 
+    console.log(`[ServiceCards] Found ${categories.length} categories`);
     res.json({
       success: true,
       data: categories
@@ -37,6 +55,8 @@ router.get('/:category', async (req, res) => {
   try {
     const { category } = req.params;
     const { includeInactive = false } = req.query;
+    
+    console.log(`[ServiceCards] Fetching cards for category: ${category}, includeInactive: ${includeInactive}`);
 
     const filter = { 
       serviceCategory: category,
@@ -47,9 +67,13 @@ router.get('/:category', async (req, res) => {
       filter.isActive = true;
     }
 
+    console.log(`[ServiceCards] Filter:`, filter);
+    
     const cards = await ServiceCard.find(filter)
       .sort({ sortOrder: 1, createdAt: -1 })
       .exec();
+
+    console.log(`[ServiceCards] Found ${cards.length} cards for ${category}`);
 
     res.json({
       success: true,

@@ -83,7 +83,7 @@ app.use(express.urlencoded({ limit: '100mb', extended: true }));
 console.log("Loading routes...");
 try {
   app.use("/api/contact", contactRoutes);
-  console.log(" Contact routes loaded");
+  console.log("✅ Contact routes loaded");
   
   // app.use("/api/connect", connectRoutes);
   // console.log("Connect routes loaded");
@@ -92,21 +92,22 @@ try {
   // console.log("CMS public routes loaded");
   
   app.use("/api/admin", adminRoutes);
-  console.log("Admin routes loaded");
+  console.log("✅ Admin routes loaded");
   
   app.use("/api/auth", adminAuthRoutes);
-  console.log("Admin auth routes loaded");
+  console.log("✅ Admin auth routes loaded");
   
   app.use("/api/upload", uploadRoutes);
-  console.log("Upload routes loaded");
+  console.log("✅ Upload routes loaded");
   
   app.use("/api/media", mediaRoutes);
-  console.log("Media routes loaded");
+  console.log("✅ Media routes loaded");
   
   app.use("/api/service-cards", serviceCardsRoutes);
-  console.log("Service cards routes loaded");
+  console.log("✅ Service cards routes loaded");
+  console.log("✅ ALL ROUTES LOADED SUCCESSFULLY");
 } catch (error) {
-  console.error("Error loading routes:", error);
+  console.error("❌ Error loading routes:", error);
 }
 
 // Health check endpoint
@@ -161,6 +162,10 @@ app.use((error, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-  console.log(` Server running at http://localhost:${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log("\n" + "=".repeat(60));
+  console.log(`✅ Server running successfully!`);
+  console.log(`🌐 URL: http://localhost:${PORT}`);
+  console.log(`📍 Environment: ${process.env.NODE_ENV}`);
+  console.log("=".repeat(60) + "\n");
+});
