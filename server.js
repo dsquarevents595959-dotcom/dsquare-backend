@@ -25,6 +25,7 @@ const { router: adminAuthRoutes } = require("./routes/admin");
 const uploadRoutes = require("./routes/upload");
 const mediaRoutes = require("./routes/media");
 const serviceCardsRoutes = require("./routes/serviceCards");
+const emailRoutes = require("./routes/email");
 
 const app = express();
 
@@ -104,7 +105,10 @@ try {
   console.log("✅ Media routes loaded");
   
   app.use("/api/service-cards", serviceCardsRoutes);
-  console.log("✅ Service cards routes loaded");
+  console.log("Service cards routes loaded");
+  
+  app.use("/api/email", emailRoutes);
+  console.log("Email routes loaded");
   console.log("✅ ALL ROUTES LOADED SUCCESSFULLY");
 } catch (error) {
   console.error("❌ Error loading routes:", error);
