@@ -3,7 +3,8 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET || "fallback_secret";
 
 console.log("AdminAuth middleware initialized", {
-  hasJWTSecret: !!process.env.ADMIN_JWT_SECRET,
+  hasJWTSecret: !!process.env.JWT_SECRET,
+  hasADMIN_JWT_SECRET: !!process.env.ADMIN_JWT_SECRET,
   hasAdminEmail: !!process.env.ADMIN_EMAIL,
   hasAdminPassword: !!process.env.ADMIN_PASSWORD,
   nodeEnv: process.env.NODE_ENV

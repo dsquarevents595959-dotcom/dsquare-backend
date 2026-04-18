@@ -71,9 +71,17 @@ router.get('/video', async (req, res) => {
 // Update hero video
 router.put('/video', verifyToken, cloudinary.upload.single('video'), async (req, res) => {
   try {
+    // Set CORS headers for response
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Content-Type', 'application/json');
+    
+    console.log('[Hero API] PUT /video request received');
+    console.log('[Hero API] Admin:', req.admin);
+    
     const { videoTitle } = req.body;
     
     if (!req.file) {
+      console.warn('[Hero API] No video file provided');
       return res.status(400).json({
         success: false,
         message: 'No video file provided'
@@ -93,17 +101,19 @@ router.put('/video', verifyToken, cloudinary.upload.single('video'), async (req,
     });
 
     await newHeroVideo.save();
+    console.log('✅ [Hero API] Hero video uploaded successfully:', newHeroVideo._id);
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: 'Hero video updated successfully',
       data: newHeroVideo
     });
   } catch (error) {
-    console.error('Error updating hero video:', error);
+    console.error('❌ [Hero API] Error updating hero video:', error.message);
     res.status(500).json({
       success: false,
-      message: 'Failed to update hero video'
+      message: 'Failed to update hero video',
+      error: error.message
     });
   }
 });
@@ -111,10 +121,15 @@ router.put('/video', verifyToken, cloudinary.upload.single('video'), async (req,
 // Delete hero video
 router.delete('/video/:id', verifyToken, async (req, res) => {
   try {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Content-Type', 'application/json');
+    
     const { id } = req.params;
+    console.log('[Hero API] DELETE /video/:id request:', id);
     
     const heroVideo = await HeroVideo.findById(id);
     if (!heroVideo) {
+      console.warn('[Hero API] Hero video not found:', id);
       return res.status(404).json({
         success: false,
         message: 'Hero video not found'
@@ -124,19 +139,22 @@ router.delete('/video/:id', verifyToken, async (req, res) => {
     // Delete from Cloudinary
     if (heroVideo.publicId) {
       await cloudinary.uploader.destroy(heroVideo.publicId);
+      console.log('[Hero API] Deleted from Cloudinary:', heroVideo.publicId);
     }
 
     await HeroVideo.findByIdAndDelete(id);
+    console.log('✅ [Hero API] Hero video deleted successfully:', id);
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: 'Hero video deleted successfully'
     });
   } catch (error) {
-    console.error('Error deleting hero video:', error);
+    console.error('❌ [Hero API] Error deleting hero video:', error.message);
     res.status(500).json({
       success: false,
-      message: 'Failed to delete hero video'
+      message: 'Failed to delete hero video',
+      error: error.message
     });
   }
 });
