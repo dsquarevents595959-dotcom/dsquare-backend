@@ -2,13 +2,13 @@ const nodemailer = require('nodemailer');
 
 // Create transporter for nodemailer
 const createTransporter = () => {
-  return nodemailer.createTransporter({
-    host: process.env.EMAIL_HOST || 'mail.dsquarevents.com',
+  return nodemailer.createTransport({
+    host: process.env.EMAIL_HOST || 'smtp.hostinger.com',
     port: process.env.EMAIL_PORT || 465,
-    secure: true, // true for 465, false for other ports
+    secure: true, // false for 587, true for 465
     auth: {
       user: process.env.EMAIL_USER || 'dinesh@dsquarevents.com',
-      pass: process.env.EMAIL_PASSWORD || 'your-email-password'
+      pass: process.env.EMAIL_PASSWORD || 'Ramadevi595959@'
     },
     tls: {
       rejectUnauthorized: false // Allow self-signed certificates

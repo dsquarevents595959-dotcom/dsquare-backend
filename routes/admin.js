@@ -12,7 +12,7 @@ router.post('/login', async (req, res) => {
     if (email === 'dsquarevents595959@gmail.com' && password === 'Ramadevi595959@') {
       const token = jwt.sign(
         { email: email, role: 'admin' },
-        process.env.JWT_SECRET || 'fallback_secret',
+        process.env.ADMIN_JWT_SECRET || 'fallback_secret',
         { expiresIn: '24h' }
       );
       
