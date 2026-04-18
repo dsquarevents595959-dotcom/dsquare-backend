@@ -4,12 +4,12 @@ const heroVideoSchema = new mongoose.Schema({
   videoUrl: {
     type: String,
     required: true,
-    default: 'https://res.cloudinary.com/dycvh4ct7/video/upload/v1745032365/courousel-hero.mp4'
+    default: 'https://www.w3schools.com/html/mov_bbb.mp4'
   },
   publicId: {
     type: String,
     required: true,
-    default: 'courousel-hero'
+    default: 'default-hero-placeholder'
   },
   videoTitle: {
     type: String,

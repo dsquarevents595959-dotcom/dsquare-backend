@@ -10,11 +10,13 @@ router.post('/login', async (req, res) => {
 
     // Hardcoded credentials check
     if (email === 'dsquarevents595959@gmail.com' && password === 'Ramadevi595959@') {
+      const secret = process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET || 'fallback_secret';
       const token = jwt.sign(
         { email: email, role: 'admin' },
-        process.env.ADMIN_JWT_SECRET || 'fallback_secret',
+        secret,
         { expiresIn: '24h' }
       );
+      console.log('Admin login successful, token generated with secret:', !!secret);
       
       return res.json({
         success: true,
@@ -38,11 +40,13 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
+    const secret = process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET || 'fallback_secret';
     const token = jwt.sign(
       { id: admin._id, email: admin.email, role: admin.role },
-      process.env.JWT_SECRET || 'fallback_secret',
+      secret,
       { expiresIn: '24h' }
     );
+    console.log('Admin login successful, token generated with secret:', !!secret);
 
     res.json({
       success: true,

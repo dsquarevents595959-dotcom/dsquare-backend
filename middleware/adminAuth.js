@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.ADMIN_JWT_SECRET || "akevents-cms-dev-secret";
+const JWT_SECRET = process.env.JWT_SECRET || process.env.ADMIN_JWT_SECRET || "fallback_secret";
 
 console.log("AdminAuth middleware initialized", {
   hasJWTSecret: !!process.env.ADMIN_JWT_SECRET,
@@ -46,6 +46,7 @@ function verifyToken(req, res, next) {
   try {
     const header = req.headers.authorization || "";
     const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+    console.log('Verifying token with secret:', !!JWT_SECRET);
     
     console.log("Token verification attempt", {
       hasToken: !!token,

@@ -8,6 +8,33 @@ const connectDB = require("./db");
 // Call the database connection function
 connectDB();
 
+// Cleanup old broken video URLs on startup
+async function cleanupOldVideoUrls() {
+  try {
+    const HeroVideo = require("./models/HeroVideo");
+    const brokenUrl = 'https://res.cloudinary.com/dycvh4ct7/video/upload/v1745032365/courousel-hero.mp4';
+    const workingUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
+    
+    const result = await HeroVideo.updateMany(
+      { videoUrl: brokenUrl },
+      { 
+        videoUrl: workingUrl,
+        publicId: 'default-hero-placeholder',
+        videoTitle: 'DSquare Events Hero Video (Placeholder)'
+      }
+    );
+    
+    if (result.modifiedCount > 0) {
+      console.log(`✅ Cleaned up ${result.modifiedCount} broken video URL(s) in database`);
+    }
+  } catch (error) {
+    console.error('Error cleaning up video URLs:', error);
+  }
+}
+
+// Run cleanup after a short delay to ensure DB is connected
+setTimeout(cleanupOldVideoUrls, 1000);
+
 // Debug environment variables
 console.log("=== Environment Variables Debug ===");
 console.log("JWT_SECRET:", !!process.env.JWT_SECRET);
