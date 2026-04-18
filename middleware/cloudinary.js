@@ -46,7 +46,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 100 * 1024 * 1024 // 100MB limit (Cloudinary free tier limit)
+    fileSize: 500 * 1024 * 1024 // 500MB limit for larger video files
   },
   fileFilter: (req, file, cb) => {
     // Accept specific image formats
