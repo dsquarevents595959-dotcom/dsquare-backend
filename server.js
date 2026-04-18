@@ -26,6 +26,7 @@ const uploadRoutes = require("./routes/upload");
 const mediaRoutes = require("./routes/media");
 const serviceCardsRoutes = require("./routes/serviceCards");
 const emailRoutes = require("./routes/email");
+const heroRoutes = require("./routes/hero");
 
 const app = express();
 
@@ -109,6 +110,9 @@ try {
   
   app.use("/api/email", emailRoutes);
   console.log("Email routes loaded");
+  
+  app.use("/api/hero", heroRoutes);
+  console.log("Hero routes loaded");
   console.log("✅ ALL ROUTES LOADED SUCCESSFULLY");
 } catch (error) {
   console.error("❌ Error loading routes:", error);
