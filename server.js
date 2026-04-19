@@ -104,9 +104,9 @@ app.use((req, res, next) => {
 });
 
 /* BODY PARSER */
-// Set limit to 100 MB to allow for video uploads + metadata
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ limit: '100mb', extended: true }));
+// Set limit to 500 MB to allow for video uploads + metadata
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ limit: '500mb', extended: true }));
 
 /* ROUTES */
 console.log("Loading routes...");
