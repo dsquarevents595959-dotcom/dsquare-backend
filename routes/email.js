@@ -1,9 +1,27 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const { sendContactEmail } = require('../services/emailService');
 
+// Rate limiting for email sending
+// Limit: 5 emails per minute per IP address
+const emailLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // 5 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many emails sent. Please try again later.'
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skip: (req) => {
+    // Skip rate limiting for test requests
+    return req.query.test === 'true';
+  }
+});
+
 // POST route to send contact form email
-router.post('/send-contact', async (req, res) => {
+router.post('/send-contact', emailLimiter, async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
     
