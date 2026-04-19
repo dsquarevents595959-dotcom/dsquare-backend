@@ -6,13 +6,13 @@ const router = express.Router();
 
 // Logging middleware for debugging
 router.use((req, res, next) => {
-  console.log(`[ServiceCards] ${req.method} ${req.path}`);
+  // console.log(`[ServiceCards] ${req.method} ${req.path}`);
   next();
 });
 
 // Test endpoint to verify route is working
 router.get('/test', (req, res) => {
-  console.log("[ServiceCards] Test endpoint hit!");
+  // console.log("[ServiceCards] Test endpoint hit!");
   res.json({ 
     success: true, 
     message: "Service Cards route is working",
@@ -23,7 +23,7 @@ router.get('/test', (req, res) => {
 // Get all categories with card counts - MUST be before /:category route
 router.get('/categories/overview', async (req, res) => {
   try {
-    console.log("[ServiceCards] Fetching categories overview");
+    // console.log("[ServiceCards] Fetching categories overview");
     const categories = await ServiceCard.aggregate([
       {
         $match: { isSubCard: false }
@@ -39,7 +39,7 @@ router.get('/categories/overview', async (req, res) => {
       }
     ]);
 
-    console.log(`[ServiceCards] Found ${categories.length} categories`);
+    // console.log(`[ServiceCards] Found ${categories.length} categories`);
     res.json({
       success: true,
       data: categories
@@ -56,7 +56,7 @@ router.get('/:category', async (req, res) => {
     const { category } = req.params;
     const { includeInactive = false } = req.query;
     
-    console.log(`[ServiceCards] Fetching cards for category: ${category}, includeInactive: ${includeInactive}`);
+    // console.log(`[ServiceCards] Fetching cards for category: ${category}, includeInactive: ${includeInactive}`);
 
     const filter = { 
       serviceCategory: category,
@@ -67,13 +67,13 @@ router.get('/:category', async (req, res) => {
       filter.isActive = true;
     }
 
-    console.log(`[ServiceCards] Filter:`, filter);
+    // console.log(`[ServiceCards] Filter:`, filter);
     
     const cards = await ServiceCard.find(filter)
       .sort({ sortOrder: 1, createdAt: -1 })
       .exec();
 
-    console.log(`[ServiceCards] Found ${cards.length} cards for ${category}`);
+    // console.log(`[ServiceCards] Found ${cards.length} cards for ${category}`);
 
     res.json({
       success: true,
@@ -117,9 +117,9 @@ router.get('/sub-cards/:parentId', async (req, res) => {
 // Add new service card
 router.post('/', verifyToken, upload.single('media'), async (req, res) => {
   try {
-    console.log('Request body:', req.body);
-    console.log('File:', req.file);
-    console.log('Admin:', req.admin);
+    // console.log('Request body:', req.body);
+    // console.log('File:', req.file);
+    // console.log('Admin:', req.admin);
 
     const { serviceCategory, cardTitle, cardDescription, mediaType, isSubCard, parentCardId, sortOrder } = req.body;
 
