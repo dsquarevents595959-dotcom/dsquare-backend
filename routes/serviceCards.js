@@ -152,6 +152,38 @@ router.post('/', verifyToken, upload.single('media'), async (req, res) => {
     });
   } catch (error) {
     console.error('Add service card error:', error);
+    
+    // Handle specific error types
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({
+        success: false,
+        message: 'File too large. Maximum size is 100MB for Cloudinary free tier',
+        error: error.message
+      });
+    }
+    
+    // Handle Cloudinary specific errors
+    if (error.message && (error.message.includes('413') || error.message.includes('Cloudinary'))) {
+      console.error('[ServiceCards] Cloudinary file size error:', error.message);
+      return res.status(413).json({
+        success: false,
+        message: 'File too large for Cloudinary. Please use a file under 100MB.',
+        error: 'Cloudinary file size limit exceeded',
+        max_size: '100MB'
+      });
+    }
+    
+    // Handle network connectivity issues
+    if (error.code === 'ETIMEDOUT' || error.code === 'ENETUNREACH') {
+      console.error('[ServiceCards] Network connectivity error:', error.message);
+      return res.status(503).json({
+        success: false,
+        message: 'Network connectivity issue. Please check your internet connection.',
+        error: 'Network connectivity issue',
+        retry: true
+      });
+    }
+    
     res.status(500).json({ success: false, message: 'Failed to add service card', error: error.message });
   }
 });
