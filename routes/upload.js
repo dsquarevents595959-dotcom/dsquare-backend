@@ -125,4 +125,51 @@ router.delete('/:publicId', verifyToken, async (req, res) => {
   }
 });
 
+// Default upload endpoint (for backward compatibility)
+router.post('/', verifyToken, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    // Extract public_id from Cloudinary URL
+    const publicId = req.file.filename || req.file.path.split('/').pop().split('.')[0];
+
+    // Save to database
+    const media = new Media({
+      filename: req.file.filename,
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      url: req.file.path,
+      public_id: publicId,
+      uploadedBy: req.admin.email || req.admin.id,
+      category: req.body.category || 'general',
+      description: req.body.description || '',
+      tags: req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : []
+    });
+
+    await media.save();
+
+    res.json({
+      success: true,
+      url: req.file.path,
+      data: {
+        id: media._id,
+        url: req.file.path,
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
+        public_id: publicId,
+        category: media.category,
+        uploadedAt: media.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ success: false, message: 'Upload failed' });
+  }
+});
+
 module.exports = router;

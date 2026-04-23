@@ -46,7 +46,7 @@ router.post('/login', async (req, res) => {
       secret,
       { expiresIn: '24h' }
     );
-    console.log('Admin login successful, token generated with secret:', !!secret);
+    // console.log('Admin login successful, token generated with secret:', !!secret);
 
     res.json({
       success: true,

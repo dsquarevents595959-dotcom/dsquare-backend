@@ -5,7 +5,7 @@ const { getAdminCredentials, signToken, verifyToken } = require("../middleware/a
 
 // Test route to verify admin routes are loaded
 router.get("/test", (req, res) => {
-  console.log("Admin test route accessed");
+  // console.log("Admin test route accessed");
   res.json({ 
     ok: true, 
     message: "Admin routes are working", 
@@ -17,7 +17,7 @@ router.get("/test", (req, res) => {
 // Enhanced login route with comprehensive error handling
 router.post("/login", async (req, res) => {
   try {
-    console.log("Admin login attempt started");
+    // console.log("Admin login attempt started");
     
     // Validate request body
     if (!req.body || typeof req.body !== 'object') {
@@ -30,11 +30,11 @@ router.post("/login", async (req, res) => {
     const email = String(req.body.email || "").trim().toLowerCase();
     const password = String(req.body.password || "").trim();
     
-    console.log("Login attempt - Email provided:", !!email, "Password provided:", !!password);
+    // console.log("Login attempt - Email provided:", !!email, "Password provided:", !!password);
     
     // Get admin credentials
     const { email: adminEmail, password: adminPass } = getAdminCredentials();
-    console.log("Expected admin email:", adminEmail);
+    // console.log("Expected admin email:", adminEmail);
     
     // Validate environment variables
     if (!process.env.ADMIN_JWT_SECRET) {
@@ -63,7 +63,7 @@ router.post("/login", async (req, res) => {
     
     // Generate token
     const token = signToken();
-    console.log("Login successful, token generated");
+    // console.log("Login successful, token generated");
     
     res.json({ 
       ok: true, 
@@ -500,5 +500,73 @@ router.get("/me", verifyToken, (req, res) => {
 //     });
 //   }
 // });
+
+// Contact Info Routes
+const ContactInfo = require("../models/ContactInfo");
+
+// GET contact info
+router.get("/contact-info", verifyToken, async (req, res) => {
+  try {
+    console.log("Admin contact info GET route accessed");
+    let contactInfo = await ContactInfo.findOne();
+    
+    if (!contactInfo) {
+      // Create default contact info if it doesn't exist
+      contactInfo = new ContactInfo();
+      await contactInfo.save();
+    }
+    
+    res.json({ 
+      ok: true, 
+      contactInfo,
+      message: "Contact info retrieved successfully"
+    });
+  } catch (error) {
+    console.error("Error getting contact info:", error);
+    res.status(500).json({ 
+      ok: false, 
+      message: "Failed to get contact info: " + error.message 
+    });
+  }
+});
+
+// UPDATE contact info
+router.put("/contact-info", verifyToken, async (req, res) => {
+  try {
+    console.log("Admin contact info PUT route accessed");
+    const { phone, email, address, facebook, whatsapp, instagram, youtube } = req.body;
+    
+    let contactInfo = await ContactInfo.findOne();
+    
+    if (!contactInfo) {
+      contactInfo = new ContactInfo();
+    }
+    
+    if (phone) contactInfo.phone = phone;
+    if (email) contactInfo.email = email;
+    if (address) contactInfo.address = address;
+    if (facebook) contactInfo.facebook = facebook;
+    if (whatsapp) contactInfo.whatsapp = whatsapp;
+    if (instagram) contactInfo.instagram = instagram;
+    if (youtube) contactInfo.youtube = youtube;
+    
+    contactInfo.updatedAt = new Date();
+    contactInfo.updatedBy = req.admin.email || 'admin';
+    
+    await contactInfo.save();
+    
+    res.json({ 
+      ok: true, 
+      contactInfo,
+      message: "Contact info updated successfully"
+    });
+  } catch (error) {
+    console.error("Error updating contact info:", error);
+    res.status(500).json({ 
+      ok: false, 
+      message: "Failed to update contact info: " + error.message 
+    });
+  }
+});
 
 module.exports = router;

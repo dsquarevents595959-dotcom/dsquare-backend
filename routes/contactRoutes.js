@@ -86,6 +86,38 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET - Fetch contact info (public route)
+const ContactInfo = require("../models/ContactInfo");
+
+router.get("/info", async (req, res) => {
+  try {
+    // console.log("Contact info GET route accessed");
+    // console.log("ContactInfo model:", ContactInfo);
+    
+    let contactInfo = await ContactInfo.findOne();
+    // console.log("Found contact info:", contactInfo);
+    
+    if (!contactInfo) {
+      // Create default contact info if it doesn't exist
+      // console.log("Creating default contact info");
+      contactInfo = new ContactInfo();
+      await contactInfo.save();
+      // console.log("Default contact info created:", contactInfo);
+    }
+    
+    res.json({ 
+      success: true, 
+      data: contactInfo
+    });
+  } catch (error) {
+    console.error("Error fetching contact info:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error: " + error.message 
+    });
+  }
+});
+
 // GET - Retrieve a single contact message by ID
 router.get("/:id", async (req, res) => {
   try {
