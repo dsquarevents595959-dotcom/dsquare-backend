@@ -78,12 +78,12 @@ router.post('/send-contact', emailLimiter, async (req, res) => {
 });
 
 // GET route to test email service
-router.get('/test', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Email service is running',
-    timestamp: new Date().toISOString()
-  });
-});
+// router.get('/test', (req, res) => {
+//   res.json({
+//     success: true,
+//     message: 'Email service is running',
+//     timestamp: new Date().toISOString()
+//   });
+// });
 
 module.exports = router;

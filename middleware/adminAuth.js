@@ -11,8 +11,8 @@ console.log("AdminAuth middleware initialized", {
 });
 
 function getAdminCredentials() {
-  const email = process.env.ADMIN_EMAIL || "akeventsandfireworks@gmail.com";
-  const password = process.env.ADMIN_PASSWORD || "AkEvents@98";
+  const email = process.env.ADMIN_EMAIL || "dsquarevents595959@gmail.com";
+  const password = process.env.ADMIN_PASSWORD || "Ramadevi595959@";
   
   return {
     email: email.trim().toLowerCase(),
@@ -47,13 +47,13 @@ function verifyToken(req, res, next) {
   try {
     const header = req.headers.authorization || "";
     const token = header.startsWith("Bearer ") ? header.slice(7) : null;
-    console.log('Verifying token with secret:', !!JWT_SECRET);
+    // console.log('Verifying token with secret:', !!JWT_SECRET);
     
-    console.log("Token verification attempt", {
-      hasToken: !!token,
-      hasJWTSecret: !!JWT_SECRET,
-      headerLength: header.length
-    });
+    // console.log("Token verification attempt", {
+    //   hasToken: !!token,
+    //   hasJWTSecret: !!JWT_SECRET,
+    //   headerLength: header.length
+    // });
     
     if (!token) {
       return res.status(401).json({ 
@@ -73,7 +73,7 @@ function verifyToken(req, res, next) {
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
       req.admin = decoded;
-      console.log("Token verified successfully");
+      // console.log("Token verified successfully");
       next();
     } catch (jwtError) {
       console.error("JWT verification failed:", jwtError.message);

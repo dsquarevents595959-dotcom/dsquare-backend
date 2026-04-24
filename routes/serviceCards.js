@@ -11,14 +11,14 @@ router.use((req, res, next) => {
 });
 
 // Test endpoint to verify route is working
-router.get('/test', (req, res) => {
+// router.get('/test', (req, res) => {
   // console.log("[ServiceCards] Test endpoint hit!");
-  res.json({ 
-    success: true, 
-    message: "Service Cards route is working",
-    timestamp: new Date().toISOString()
-  });
-});
+//   res.json({ 
+//     success: true, 
+//     message: "Service Cards route is working",
+//     timestamp: new Date().toISOString()
+//   });
+// });
 
 // Get all categories with card counts - MUST be before /:category route
 router.get('/categories/overview', async (req, res) => {

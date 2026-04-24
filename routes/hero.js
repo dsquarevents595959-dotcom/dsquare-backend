@@ -7,14 +7,14 @@ const multer = require('multer');
 const cloudinary = require('../middleware/cloudinary');
 
 // Health check endpoint - simple test to verify API is accessible
-router.get('/health', (req, res) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  return res.status(200).json({ 
-    ok: true, 
-    message: 'Hero API is accessible',
-    timestamp: new Date().toISOString()
-  });
-});
+// router.get('/health', (req, res) => {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   return res.status(200).json({ 
+//     ok: true, 
+//     message: 'Hero API is accessible',
+//     timestamp: new Date().toISOString()
+//   });
+// });
 
 // Handle preflight requests for CORS
 router.options('/video', (req, res) => {
