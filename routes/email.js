@@ -1,7 +1,6 @@
 const express = require('express');
-const rateLimit = require('express-rate-limit');
+const nodemailer = require('nodemailer');
 const router = express.Router();
-const { sendContactEmail } = require('../services/emailService');
 
 // Rate limiting for email sending
 // Limit: 5 emails per minute per IP address
