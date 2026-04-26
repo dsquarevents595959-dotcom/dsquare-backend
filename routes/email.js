@@ -1,121 +1,89 @@
 const express = require('express');
-const nodemailer = require('nodemailer');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
+const { sendContactEmail } = require('../services/emailService');
 
-// Email configuration using Hostinger (lazy initialization)
-let transporter = null;
-
-const createTransporter = () => {
-  if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-    return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: 587, // Standard SMTP port
-      secure: false, // Use STARTTLS
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      tls: {
-        rejectUnauthorized: false,
-        ciphers: 'SSLv3'
-      },
-      connectionTimeout: 10000, // 10 seconds timeout
-      pool: true // Use connection pooling
-    });
+// Rate limiting for email sending
+// Limit: 5 emails per minute per IP address
+const emailLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // 5 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many emails sent. Please try again later.'
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skip: (req) => {
+    // Skip rate limiting for test requests
+    return req.query.test === 'true';
   }
-  return null;
-};
+});
 
-// POST endpoint to send contact emails
-router.post('/send-contact', async (req, res) => {
+// POST route to send contact form email
+router.post('/send-contact', emailLimiter, async (req, res) => {
   try {
-    console.log('Received contact form data:', req.body);
-    
-    // Debug environment variables
-    console.log('Email config debug:');
-    console.log('EMAIL_HOST:', process.env.EMAIL_HOST);
-    console.log('EMAIL_PORT:', process.env.EMAIL_PORT);
-    console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
-    console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
-    console.log('EMAIL_TO:', process.env.EMAIL_TO);
-    
     const { name, email, phone, subject, message } = req.body;
     
     // Validate required fields
-    if (!name || !email || !phone || !subject || !message) {
+    if (!name || !email || !message) {
       return res.status(400).json({
         success: false,
-        message: 'All fields are required'
+        message: 'Name, email, and message are required fields'
       });
     }
     
-    // Create transporter only if email configuration is available
-    transporter = createTransporter();
-    
-    if (!transporter) {
-      console.warn('Email configuration missing - simulating email send');
-      // Simulate email send for demo purposes
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log('Email simulated successfully to: dinesh@dsquarevents.com');
-      console.log('Form data received:', { name, email, phone, subject, message });
-      
-      return res.status(200).json({
-        success: true,
-        message: 'Email sent successfully (demo mode)'
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
       });
     }
     
-    // Email options
-    const mailOptions = {
-      from: `"${name}" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO || process.env.EMAIL_USER,
-      subject: `DSquare Events Contact: ${subject}`,
-      html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, '<br>')}</p>
-        <hr>
-        <p><em>Sent from DSquare Events Website</em></p>
-      `
+    // Prepare form data
+    const formData = {
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone ? phone.trim() : '',
+      subject: subject ? subject.trim() : 'Contact Form Submission',
+      message: message.trim()
     };
     
-    console.log('Sending email with options:', {
-      from: mailOptions.from,
-      to: mailOptions.to,
-      subject: mailOptions.subject
-    });
-    
     // Send email
-    const result = await transporter.sendMail(mailOptions);
+    const emailResult = await sendContactEmail(formData);
     
-    console.log('Email sent successfully:', result.messageId);
-    console.log('Email sent to:', process.env.EMAIL_TO || process.env.EMAIL_USER);
-    
-    res.status(200).json({
-      success: true,
-      message: 'Email sent successfully'
-    });
-    
+    if (emailResult.success) {
+      res.status(200).json({
+        success: true,
+        message: 'Email sent successfully',
+        messageId: emailResult.messageId
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to send email',
+        error: emailResult.error
+      });
+    }
   } catch (error) {
-    console.error('Error sending email - Full error:', error);
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      command: error.command,
-      stack: error.stack
-    });
-    
+    console.error('Error in email route:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to send email',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: 'Internal server error',
+      error: error.message
     });
   }
 });
+
+// GET route to test email service
+// router.get('/test', (req, res) => {
+//   res.json({
+//     success: true,
+//     message: 'Email service is running',
+//     timestamp: new Date().toISOString()
+//   });
+// });
 
 module.exports = router;
