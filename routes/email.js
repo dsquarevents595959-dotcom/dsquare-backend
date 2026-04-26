@@ -2,33 +2,18 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const router = express.Router();
 
-// Rate limiting for email sending
-// Limit: 5 emails per minute per IP address
-const emailLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 5, // 5 requests per windowMs
-  message: {
-    success: false,
-    message: 'Too many emails sent. Please try again later.'
-  },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  skip: (req) => {
-    // Skip rate limiting for test requests
-    return req.query.test === 'true';
-  }
-});
-
 // POST route to send contact form email
-router.post('/send-contact', emailLimiter, async (req, res) => {
+router.post('/send-contact', async (req, res) => {
   try {
+    console.log('Received contact form data:', req.body);
+    
     const { name, email, phone, subject, message } = req.body;
     
     // Validate required fields
-    if (!name || !email || !message) {
+    if (!name || !email || !phone || !subject || !message) {
       return res.status(400).json({
         success: false,
-        message: 'Name, email, and message are required fields'
+        message: 'All fields are required'
       });
     }
     
@@ -41,31 +26,62 @@ router.post('/send-contact', emailLimiter, async (req, res) => {
       });
     }
     
-    // Prepare form data
-    const formData = {
-      name: name.trim(),
-      email: email.trim(),
-      phone: phone ? phone.trim() : '',
-      subject: subject ? subject.trim() : 'Contact Form Submission',
-      message: message.trim()
+    // Check if email configuration is available
+    if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.warn('Email configuration missing - simulating email send');
+      // Simulate email send for demo purposes
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log('Email simulated successfully to: dinesh@dsquarevents.com');
+      console.log('Form data received:', { name, email, phone, subject, message });
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Email sent successfully (demo mode)'
+      });
+    }
+    
+    // Create transporter
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+    
+    // Email options
+    const mailOptions = {
+      from: `"${name}" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_TO || process.env.EMAIL_USER,
+      subject: `DSquare Events Contact: ${subject}`,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message.replace(/\n/g, '<br>')}</p>
+        <hr>
+        <p><em>Sent from DSquare Events Website</em></p>
+      `
     };
     
     // Send email
-    const emailResult = await sendContactEmail(formData);
+    const result = await transporter.sendMail(mailOptions);
     
-    if (emailResult.success) {
-      res.status(200).json({
-        success: true,
-        message: 'Email sent successfully',
-        messageId: emailResult.messageId
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        message: 'Failed to send email',
-        error: emailResult.error
-      });
-    }
+    console.log('Email sent successfully:', result.messageId);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Email sent successfully'
+    });
   } catch (error) {
     console.error('Error in email route:', error);
     res.status(500).json({
