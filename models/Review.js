@@ -35,10 +35,6 @@ const reviewSchema = new mongoose.Schema({
   sortOrder: {
     type: Number,
     default: 0
-  },
-  addedBy: {
-    type: String,
-    required: true
   }
 }, {
   timestamps: true

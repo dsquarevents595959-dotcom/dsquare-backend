@@ -23,10 +23,6 @@ const serviceCardSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  publicId: {
-    type: String,
-    required: true
-  },
   isActive: {
     type: Boolean,
     default: true
@@ -43,10 +39,6 @@ const serviceCardSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'ServiceCard',
     default: null
-  },
-  uploadedBy: {
-    type: String,
-    required: true
   },
   tags: [{
     type: String
