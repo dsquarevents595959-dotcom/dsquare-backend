@@ -16,6 +16,7 @@ console.log("=================================");
 
 const serviceCardsRoutes = require("./routes/serviceCards");
 const reviewsRoutes = require("./routes/reviews");
+const emailRoutes = require("./routes/email");
 
 const app = express();
 
@@ -77,6 +78,9 @@ try {
   
   app.use("/api/reviews", reviewsRoutes);
   console.log("✅ Reviews routes loaded");
+  
+  app.use("/api/email", emailRoutes);
+  console.log("✅ Email routes loaded");
   console.log("✅ ALL ROUTES LOADED SUCCESSFULLY");
 } catch (error) {
   console.error("❌ Error loading routes:", error);

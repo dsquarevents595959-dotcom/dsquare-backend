@@ -53,4 +53,4 @@ serviceCardSchema.index({ isActive: 1 });
 serviceCardSchema.index({ parentCardId: 1 });
 serviceCardSchema.index({ cardTitle: 'text', cardDescription: 'text' });
 
-module.exports = mongoose.model('ServiceCard', serviceCardSchema);
+module.exports = mongoose.model('servicecards', serviceCardSchema);

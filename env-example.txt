@@ -5,5 +5,9 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/dsquare-events?r
 NODE_ENV=production
 PORT=5000
 
+# Database Collections
+# Using new database: dsquare-events
+# Collections: reviews1, servicecards1
+
 # CORS Configuration (optional - for allowed origins)
 # ALLOWED_ORIGINS=http://localhost:5173,https://yourdomain.com
