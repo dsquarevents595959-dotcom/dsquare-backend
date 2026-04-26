@@ -24,6 +24,14 @@ router.post('/send-contact', async (req, res) => {
   try {
     console.log('Received contact form data:', req.body);
     
+    // Debug environment variables
+    console.log('Email config debug:');
+    console.log('EMAIL_HOST:', process.env.EMAIL_HOST);
+    console.log('EMAIL_PORT:', process.env.EMAIL_PORT);
+    console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
+    console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
+    console.log('EMAIL_TO:', process.env.EMAIL_TO);
+    
     const { name, email, phone, subject, message } = req.body;
     
     // Validate required fields
@@ -34,10 +42,19 @@ router.post('/send-contact', async (req, res) => {
       });
     }
     
+    // Check if email configuration is set
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || !process.env.EMAIL_HOST) {
+      console.error('Email configuration missing');
+      return res.status(500).json({
+        success: false,
+        message: 'Email service not configured properly'
+      });
+    }
+    
     // Email options
     const mailOptions = {
       from: `"${name}" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO,
+      to: process.env.EMAIL_TO || process.env.EMAIL_USER,
       subject: `DSquare Events Contact: ${subject}`,
       html: `
         <h2>New Contact Form Submission</h2>
@@ -52,10 +69,17 @@ router.post('/send-contact', async (req, res) => {
       `
     };
     
-    // Send email
-    await transporter.sendMail(mailOptions);
+    console.log('Sending email with options:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject
+    });
     
-    console.log('Email sent successfully to:', process.env.EMAIL_TO);
+    // Send email
+    const result = await transporter.sendMail(mailOptions);
+    
+    console.log('Email sent successfully:', result.messageId);
+    console.log('Email sent to:', process.env.EMAIL_TO || process.env.EMAIL_USER);
     
     res.status(200).json({
       success: true,
@@ -63,10 +87,18 @@ router.post('/send-contact', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email - Full error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      stack: error.stack
+    });
+    
     res.status(500).json({
       success: false,
-      message: 'Failed to send email'
+      message: 'Failed to send email',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
